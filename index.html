@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dungeon Level Progress</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div class="container">
+        <h1 class="title">Dungeon Level Progress</h1>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div>Dungeon Count</div>
+                <div class="stat-value" id="dungeonCount">0</div>
+            </div>
+            <div class="stat-card">
+                <div>Total XP</div>
+                <div class="stat-value" id="totalXP">0</div>
+            </div>
+            <div class="stat-card">
+                <div>NPCs Killed</div>
+                <div class="stat-value" id="totalNPCs">0</div>
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label for="targetLevel">Target Level:</label>
+            <input type="number" id="targetLevel" value="50" min="1" max="1000">
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+
+        <div class="button-group">
+            <button class="btn btn-primary" id="startButton">Start Run</button>
+            <button class="btn btn-success" id="toggleDetails">Show Details</button>
+            <button class="btn btn-danger" id="cancelButton" style="display: none;">Cancel</button>
+        </div>
+
+        <div id="dungeonDetails"></div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
