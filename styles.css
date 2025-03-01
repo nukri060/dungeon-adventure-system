@@ -4,6 +4,14 @@
     --danger-color: #dc3545;
     --text-color: #333;
     --bg-color: #f8f9fa;
+    --card-bg: white;
+}
+
+[data-theme="dark"] {
+    --primary-color: #6c8efd;
+    --bg-color: #1a1a1a;
+    --text-color: #e0e0e0;
+    --card-bg: #2d2d2d;
 }
 
 body {
@@ -17,7 +25,7 @@ body {
 .container {
     max-width: 800px;
     margin: 0 auto;
-    background: white;
+    background: var(--card-bg);
     padding: 4rem;
     border-radius: 12px;
     box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
@@ -54,16 +62,20 @@ body {
     margin: 1.5rem 0;
 }
 
-input[type="number"] {
+input[type="number"],
+select {
     width: 100%;
     padding: 0.8rem;
     border: 2px solid #ddd;
     border-radius: 8px;
     font-size: 1rem;
     transition: border-color 0.3s ease;
+    background: var(--card-bg);
+    color: var(--text-color);
 }
 
-input[type="number"]:focus {
+input[type="number"]:focus,
+select:focus {
     border-color: var(--primary-color);
     outline: none;
 }
@@ -113,7 +125,7 @@ input[type="number"]:focus {
 .dungeon-log {
     margin-bottom: 1rem;
     padding: 1rem;
-    background: white;
+    background: var(--card-bg);
     border-radius: 8px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
@@ -131,4 +143,31 @@ input[type="number"]:focus {
     height: 100%;
     background: var(--primary-color);
     transition: width 0.3s ease;
+}
+
+.chart-container {
+    margin: 2rem 0;
+    padding: 1rem;
+    background: var(--card-bg);
+    border-radius: 8px;
+}
+
+.theme-switcher {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+}
+
+@media (max-width: 768px) {
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .container {
+        padding: 1rem;
+    }
+
+    .button-group {
+        flex-direction: column;
+    }
 }
