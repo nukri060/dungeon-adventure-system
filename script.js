@@ -16,25 +16,30 @@ class DungeonSimulator {
         this.dungeonCount = 0;
         this.totalDungeonXP = 0;
         this.targetLevel = 50;
+        this.characterClass = CharacterClass.CLASSES.warrior;
+        this.progressChart = new ProgressChart();
         this.initEventListeners();
+        this.loadProgress();
     }
 
     initEventListeners() {
         document.getElementById('startButton').addEventListener('click', () => this.start());
         document.getElementById('toggleDetails').addEventListener('click', () => this.toggleDetails());
         document.getElementById('cancelButton').addEventListener('click', () => this.cancel());
+        document.getElementById('classSelect').addEventListener('change', (e) => {
+            this.characterClass = CharacterClass.CLASSES[e.target.value];
+        });
     }
 
     async start() {
         if (this.isRunning) return;
-        
-        this.targetLevel = Math.min(1000, Math.max(1, 
-            parseInt(document.getElementById('targetLevel').value) || 50));
-        
+
+        this.targetLevel = Math.min(1000, Math.max(1, parseInt(document.getElementById('targetLevel').value) || 50));
+
         this.resetState();
         this.isRunning = true;
         this.updateUI();
-        
+
         try {
             while (this.currentLevel < this.targetLevel && this.isRunning) {
                 await this.runDungeon();
@@ -43,7 +48,7 @@ class DungeonSimulator {
         } catch (error) {
             console.error('Simulation error:', error);
         }
-        
+
         this.isRunning = false;
         this.updateUI();
     }
@@ -52,15 +57,17 @@ class DungeonSimulator {
         this.dungeonCount++;
         const rankInfo = this.getCurrentRankInfo();
         const result = this.calculateDungeon(rankInfo);
-        
+
         this.totalXP += result.xpEarned;
         this.totalNPCs += result.npcKills.total;
         this.totalDungeonXP += result.xpEarned;
-        
+
         this.processBossEncounter(rankInfo, result.bossSuccess);
         this.updateLevelProgress();
         this.logDungeonResult(rankInfo, result);
         this.updateUI();
+        this.progressChart.update(this.currentLevel);
+        StorageService.save(this.getState());
     }
 
     calculateDungeon(rankInfo) {
@@ -71,7 +78,7 @@ class DungeonSimulator {
             const enemyType = this.getRandomEnemy();
             const count = this.generateEnemyCount(enemyType);
             const xp = this.calculateEnemyXP(enemyType, rankInfo, count);
-            
+
             npcKills[this.getEnemyTypeName(enemyType)] += count;
             npcKills.total += count;
             xpEarned += xp;
@@ -113,11 +120,16 @@ class DungeonSimulator {
     }
 
     calculateEnemyXP(enemyType, rankInfo, count) {
-        return count * (
+        const baseXP = count * (
             enemyType === 1 ? rankInfo.basicXP :
-            enemyType === 2 ? rankInfo.strongXP : 
+            enemyType === 2 ? rankInfo.strongXP :
             rankInfo.bossXP
         );
+        return baseXP * this.getXPModifier(enemyType);
+    }
+
+    getXPModifier(enemyType) {
+        return this.characterClass.xpModifier[this.getEnemyTypeName(enemyType)] || 1;
     }
 
     getEnemyTypeName(enemyType) {
@@ -152,7 +164,7 @@ class DungeonSimulator {
     toggleDetails() {
         const details = document.getElementById('dungeonDetails');
         details.style.display = details.style.display === 'none' ? 'block' : 'none';
-        document.getElementById('toggleDetails').textContent = 
+        document.getElementById('toggleDetails').textContent =
             details.style.display === 'none' ? 'Show Details' : 'Hide Details';
     }
 
@@ -170,6 +182,68 @@ class DungeonSimulator {
         document.getElementById('dungeonDetails').innerHTML = '';
         this.updateUI();
     }
+
+    getState() {
+        return {
+            currentLevel: this.currentLevel,
+            dungeonCount: this.dungeonCount,
+            totalXP: this.totalXP,
+            totalNPCs: this.totalNPCs,
+            characterClass: this.characterClass
+        };
+    }
+
+    loadProgress() {
+        const saved = StorageService.load();
+        if (saved) {
+            Object.assign(this, saved);
+            this.updateUI();
+        }
+    }
+}
+
+class CharacterClass {
+    static CLASSES = {
+        warrior: { xpModifier: { boss: 1.2, basic: 0.9 } },
+        mage: { xpModifier: { basic: 1.3, strong: 0.8 } }
+    };
+}
+
+class ProgressChart {
+    constructor() {
+        this.ctx = document.getElementById('progressChart').getContext('2d');
+        this.chart = new Chart(this.ctx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Level Progress',
+                    data: [],
+                    borderColor: 'rgb(75, 192, 192)'
+                }]
+            }
+        });
+    }
+
+    update(level) {
+        this.chart.data.labels.push(`Dungeon ${this.chart.data.labels.length + 1}`);
+        this.chart.data.datasets[0].data.push(level);
+        this.chart.update();
+    }
+}
+
+class StorageService {
+    static save(state) {
+        localStorage.setItem('dungeonState', JSON.stringify(state));
+    }
+
+    static load() {
+        return JSON.parse(localStorage.getItem('dungeonState')) || null;
+    }
 }
 
 const simulator = new DungeonSimulator();
+
+document.getElementById('themeButton').addEventListener('click', () => {
+    document.body.dataset.theme = document.body.dataset.theme === 'dark' ? 'light' : 'dark';
+});
