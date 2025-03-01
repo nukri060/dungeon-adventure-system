@@ -1,14 +1,18 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dungeon Level Progress</title>
     <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body>
+    <div class="theme-switcher">
+        <button class="btn btn-theme" id="themeButton">🌓</button>
+    </div>
     <div class="container">
         <h1 class="title">Dungeon Level Progress</h1>
 
@@ -32,8 +36,20 @@
             <input type="number" id="targetLevel" value="50" min="1" max="1000">
         </div>
 
+        <div class="input-group">
+            <label for="classSelect">Class:</label>
+            <select id="classSelect">
+                <option value="warrior">Warrior</option>
+                <option value="mage">Mage</option>
+            </select>
+        </div>
+
         <div class="progress-bar">
             <div class="progress-fill" id="progressFill"></div>
+        </div>
+
+        <div class="chart-container">
+            <canvas id="progressChart"></canvas>
         </div>
 
         <div class="button-group">
